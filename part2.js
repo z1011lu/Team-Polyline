@@ -1,68 +1,68 @@
 function init(elements) {
-    let canvasW = 700;
-    let canvasH = 400;
+  chart = {
+    const width = 975;
+    const height = 610;
+  
+    const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .on("zoom", zoomed);
+  
+    const svg = d3.create("svg")
+        .attr("viewBox", [0, 0, width, height])
+        .on("click", reset);
+  
+    const g = svg.append("g");
+  
+    const states = g.append("g")
+        .attr("fill", "#444")
+        .attr("cursor", "pointer")
+      .selectAll("path")
+      .data(topojson.feature(us, us.objects.states).features)
+      .join("path")
+        .on("click", clicked)
+        .attr("d", path);
     
-    let margin = 50
-    let w = canvasW - (margin * 2);
-    let h = canvasH - (margin * 2);
-
-    
-
-    const svg = d3.select("body").append("svg")
-        .attr("width", 600)
-        .attr("height", 400)
-        .style("background-color", "#42f5e3");  
-
-    let anxietyCircles = svg.selectAll()
-        .data(elements)
-        .enter()
-        .append("circle")
-        .attr("cx", (d, i) => i * 50 + 75)
-        .attr("cy", d => 375 - d.anxiety * 30)
-        .attr("r", "5")
-        .style("fill", "#5555aa")
-        .style("opacity", ".5")
-
-    let sleepSquare = svg.selectAll()
-      .data(elements)
-      .enter()
-      .append("rect")
-      .attr("fill", "#f2d177")
-      .attr("x", (d, i) => i * 50+ 75 + 5)
-      .attr("y", d => 375 - d.sleep * 30 - 5) 
-      .attr("width", 10)
-      .attr("height", 10)
-      
-   svg.append('text')
-    .attr('transform', 'translate(10, 100) rotate(-90)')
-    .attr('x', -200).attr('y', 25)
-    .attr("font-size", "30px")
-    .attr("fill", "#a8bae3")
-    .text('anxiety')
-    .style('white-space', 'pre')
-
-    svg.append('text')
-    .attr('transform', 'translate(10, 100) rotate(-90)')
-    .attr('x', -50).attr('y', 25)
-    .attr("font-size", "30px")
-    .attr("fill", "#f2d177")
-    .text('sleep')
-    .style('white-space', 'pre')
-
-    svg.append('text')
-    .attr('transform', 'translate(0, 0)')
-    .attr('x', 100).attr('y', 50)
-    .attr("font-size", "40px")
-    .attr("fill", "#486cbd")
-    .text('Anxiety + Sleep graph')
-    .style('white-space', 'pre')
-    
-    svg.append('text')
-    .attr('transform', 'translate(0, 0)')
-    .attr('x', 175).attr('y', 375)
-    .attr("font-size", "30px")
-    .attr("fill", "#486cbd")
-    .text('November 3 to 11')
-    .style('white-space', 'pre')
-
+    states.append("title")
+        .text(d => d.properties.name);
+  
+    g.append("path")
+        .attr("fill", "none")
+        .attr("stroke", "white")
+        .attr("stroke-linejoin", "round")
+        .attr("d", path(topojson.mesh(us, us.objects.states, (a, b) => a !== b)));
+  
+    svg.call(zoom);
+  
+    function reset() {
+      states.transition().style("fill", null);
+      svg.transition().duration(750).call(
+        zoom.transform,
+        d3.zoomIdentity,
+        d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
+      );
+    }
+  
+    function clicked(event, d) {
+      const [[x0, y0], [x1, y1]] = path.bounds(d);
+      event.stopPropagation();
+      states.transition().style("fill", null);
+      d3.select(this).transition().style("fill", "red");
+      svg.transition().duration(750).call(
+        zoom.transform,
+        d3.zoomIdentity
+          .translate(width / 2, height / 2)
+          .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+          .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+        d3.pointer(event, svg.node())
+      );
+    }
+  
+    function zoomed(event) {
+      const {transform} = event;
+      g.attr("transform", transform);
+      g.attr("stroke-width", 1 / transform.k);
+    }
+  
+    return svg.node();
+  }
 }
