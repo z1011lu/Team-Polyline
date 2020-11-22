@@ -5,28 +5,13 @@ function init(elements) {
     let margin = 50
     let w = canvasW - (margin * 2);
     let h = canvasH - (margin * 2);
-    let xinc = w/10;
-    let yinc = h/10;
 
     
 
     const svg = d3.select("body").append("svg")
         .attr("width", 600)
         .attr("height", 400)
-        .style("background-color", "#42f5e3");
-
-    /*
-    var jsonAnxiety = elements.map(function(d) {
-        return {
-          anxiety: d.anxiety,
-        }
-      });
-      */
-
-
-    //let jsonAnxiety = elements.filter(e => {return e.anxiety == true});
-
-    
+        .style("background-color", "#42f5e3");  
 
     let anxietyCircles = svg.selectAll()
         .data(elements)
@@ -48,17 +33,6 @@ function init(elements) {
       .attr("width", 10)
       .attr("height", 10)
       
-      /*
-    let sleepLine = svg.selectAll()
-        .data(elements)
-        .enter()
-        .append("line")
-        .attr("fill", "none")
-        .attr("stroke", "blue")
-        .attr("stroke-width", 2)
-        .attr("x1", (d,i) => x[d.sleep] + i*5);
-        .attr("x2", )
-    */
    svg.append('text')
     .attr('transform', 'translate(10, 100) rotate(-90)')
     .attr('x', -200).attr('y', 25)
