@@ -4,17 +4,20 @@ function init(elements) {
     let canvasW = 1600;
     let canvasH = 800;
   
-    let margin = 50;
+    let margin = ({top: 50, right: 50, bottom: 50, left: 50})
+
+
+    //let margin = 50;
     let w = canvasW - (margin * 2);
     let h = canvasH - (margin * 2);
     let xScale = d3.scaleLinear()
       .domain([0,12000])
-      .range([0,1600])
+      .range([margin.left, canvasW - margin.right])
     let yScale = d3.scaleLinear()
       .domain([0,3000])
-      .range([800,0])
-    let xinc = w / 100;
-    let yinc = h / 10;
+      .range([canvasH - margin.bottom, margin.top])
+    //let xinc = w / 100;
+    //let yinc = h / 10;
   
     let svg = d3.select("body")
     .append("svg")
@@ -23,67 +26,52 @@ function init(elements) {
       //.call(d3.zoom().on("zoom", function () {svg.attr("transform", d3.event.transform)}))
       .style("background-color", d3.color("rgba(12,35, 64, 1)") );
       
-
-      let jsonLocations = elements;
+      const jsonCircles = elements;
+      const jsonLocations = elements;
       //let jsonDistance = elements.filter( e => {  return e.distanceTo  } );
       //console.log(jsonDistance);
 
       let circles = svg.selectAll()
-      .data(jsonLocations)
+      .data(jsonCircles)
       .enter() 
         .append("circle") 
           .attr("fill", d3.color("rgba(253,165,15,1)")  )
-          .attr("cx", d => { return margin + xScale(d.distanceTo)})
+          .attr("cx", d => { return xScale(d.distanceTo)})
           .attr("cy", d => { return yScale(d.numberOfCalls)})
           .attr("r", 5) 
           .attr("stroke", d3.color("rgba(0,0,0,0.5)") )
           .attr("stroke-width", 2)
 
 
-          const xAxis = svg.append("g")
+          let xAxis = svg.append("g")
           .style("stroke","white")
           .attr("transform","translate(0,750)")
           d3.axisBottom(xScale)(xAxis)
-          
-          const yAxis = svg.append("g")
+          //let xAxisGroup = d3.select("#xAxis");
+
+          let yAxis = svg.append("g")
           .style("stroke","white")
           .attr("transform","translate(50,0)")
           d3.axisLeft(yScale)(yAxis)
+          //let yAxisGroup = d3.select("#yAxis");
 
 
-          let zoom = d3.zoom()
-          zoom.on("zoom", function(e) {
-            //console.log(e);
-            let newXScale = e.transform.rescaleX(xScale)
-            let newYScale = e.transform.rescaleY(yScale)
-          
-            //console.log(d3.selectAll("circle"));
-            
-            d3.selectAll("circle")
-            .data(jsonLocations)
-            .join()
-            .attr("cx", d => newXScale(d.distanceTo))
-            .attr("cy", d => newYScale(d.numberOfCalls))
-            
-          })
-          svg.call(zoom);
 
-/*
+
           let text = svg.selectAll()
           .data(jsonLocations)
           .enter();
-      
-      
+          
         text
           .append("text")
           .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
           .attr("font-size", "10px")
           .attr("fill", "white")
-          .attr("x", d => { return -30 + margin + ((d.distanceTo/150) * xinc)- 200 + 30; })
-          .attr("y", d => { return -60 + canvasH - (margin + ((d.numberOfCalls/7) * yinc)) + 30; })
+          .attr("x", d => { return xScale(d.distanceTo)})
+          .attr("y", d => { return yScale(d.numberOfCalls) + 20})
           .text(d => {return d.location});
-      
+/*      
         text 
           .append("text")
           .attr("text-anchor","middle")
@@ -103,37 +91,71 @@ function init(elements) {
           .attr("x", d => { return -30 + margin + ((d.distanceTo/150) * xinc)- 200 + 30; })
           .attr("y", d => { return -36 + canvasH - (margin + ((d.numberOfCalls/7) * yinc)) + 30; })
           .text(d => {return d.distanceTo + " mi"})
+*/
 
+let zoom = d3.zoom()
+.scaleExtent([1, 40])
+.translateExtent([[0,0],[1600,800]]);
+zoom.on("zoom", function(e) {
+
+  let newXScale = e.transform.rescaleX(xScale)
+  let newYScale = e.transform.rescaleY(yScale)
+
+  //xAxis.scaleLinear(newXScale);
+  //xAxisGroup.call(xAxis);
+
+  //yAxis.scaleLinear(newYScale);
+  //yAxisGroup.call(yAxis);
+  
+  d3.selectAll("circle")
+  .data(jsonCircles)
+  .join()
+  .attr("cx", d => newXScale(d.distanceTo))
+  .attr("cy", d => newYScale(d.numberOfCalls))
+
+
+  //let jsonLocations2 = elements.filter( e => {  return e.distanceTo  } );
+
+
+  d3.selectAll("text")
+  //.data(jsonLocations)
+  //.join()
+  .attr("x", d => newXScale(d.distanceTo)) //gitchy, only applies the first of the two attributes :(
+  .attr("y", d => newYScale(d.numberOfCalls))
+
+  //d3.selectAll("text")
+  //.data(jsonLocations2)
+  //.join()
+  //.attr("y", d => newYScale(d.numberOfCalls))
+
+})
+svg.call(zoom);
 
         const xText = svg.append("text")
           .attr("x",  canvasW / 2)
-          .attr("y", canvasH - 20)
+          .attr("y", canvasH - 5)
           .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
-          .attr("font-size", "20px")
+          .attr("font-size", "14px")
           .attr("fill", "white")
           .text("Distance from LA (in kilometers)");
       
         const yText = svg.append("text")
           .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
-          .attr("font-size", "20px")
+          .attr("font-size", "14px")
           .attr("fill", "white")
-          .attr("transform", "translate(20,"+(canvasH/2)+") rotate(90)")
+          .attr("transform", "translate(60,"+(canvasH/2)+") rotate(90)")
           .text("Number of RX (Receiving) Calls");
 
-let zoom = d3.zoom()
-zoom.on("zoom", function() {
-  let newXScale = d3.event.transform.rescaleX(xScale)
-  let newYScale = d3.event.transform.rescaleY(yScale)
 
-})
-*/
+
+
 
 svg.call(zoom);
 
 
-//Title, No idea how to do stacked text like this other than individual blocks. oh well.
+//Title, No idea how to do stacked text like this other than individual blocks. oh well. \n does not work.
 
         const Title1 = svg.append("text")
           .attr("x",  (canvasW * 9) / 10)
@@ -142,7 +164,7 @@ svg.call(zoom);
           .attr("font-family", "sans-serif")
           .attr("font-size", "24px")
           .attr("fill", "lightBlue")
-          .text("12 Hours of");
+          .text("24 Hours of");
 
 
           const Title2 = svg.append("text")
@@ -165,13 +187,13 @@ svg.call(zoom);
           .text("Digital Mode");
 
           const Title4 = svg.append("text")
-          .attr("x",  (canvasW * (9) / 10) + 1)
+          .attr("x",  (canvasW * (9) / 10) - 25)
           .attr("y", canvasH + (-canvasH + 160))
           .attr("text-anchor","right")
           .attr("font-family", "sans-serif")
           .attr("font-size", "12px")
           .attr("fill", "white")
-          .text("by Kai Turner - KN6KXG");
+          .text("by Kai Turner, Zach Lu, & Rick Li");
 
     csv('FT8dataset.csv').then(data => {
         console.log(data);
