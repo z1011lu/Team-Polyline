@@ -6,5 +6,6 @@ Zirui Li
 Kai Turner
 
 Example:
-https://observablehq.com/@d3/zoom-to-bounding-box
+https://observablehq.com/@foxerlee/zoomable-scatterplot
+https://observablehq.com/@credmond/x-and-y-axes
 
