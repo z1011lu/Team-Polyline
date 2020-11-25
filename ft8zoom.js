@@ -44,7 +44,7 @@ function init(elements) {
             .attr("id", d => "c" + d.id)
             .attr("fill", d3.color("rgba(253,165,15,1)")  )
             .attr("cx", d => { return xScale(d.distanceTo)})
-            .attr("cy", d => { return yScale(d.numberOfCalls)})
+            .attr("cy", d => { return yScale(d.numberOfCalls) - 5})
             .attr("r", 5) 
             .attr("stroke", d3.color("rgba(0,0,0,0.5)") )
             .attr("stroke-width", 2)
@@ -53,7 +53,9 @@ function init(elements) {
 
 
       function handleMouseOver() {
-        console.log(d3.select(this).attr("id"));
+        //console.log(d3.select(this).attr("id"));
+        d3.selectAll(".tooltip")
+          .remove()
         circleID = d3.select(this).attr("id");
         let newText = svg.selectAll()
         .data(jsonLocations)
@@ -66,36 +68,48 @@ function init(elements) {
             .attr("x", 80)
             .attr("y", 40)
             .append("tspan")
-              .text(d => { if(circleID == "c" + d.id){return "Country: " + d.location}})
+              .text(d => { if(this.id == "c" + d.id){return "Country: " + d.location}})
               .attr("fill", d3.color("rgba(253,165,15, 1)") )
-              .attr("id", "textLoc")
+              .attr("id", d => "tc" + d.id)
+              .attr("class", "tooltip")
               .attr("opacity", 0.1)
             .append("tspan")
               .attr("fill", "lightBlue")
-              .text(d => { if(circleID == "c" + d.id){return "# of calls: " + d.numberOfCalls}})
+              .text(d => { if(this.id == "c" + d.id){return "# of calls: " + d.numberOfCalls}})
               .attr("dy", 20)
               .attr("x", 80)
-              .attr("id", "textLoc")
+              .attr("id", d => "tc" + d.id)
+              .attr("class", "tooltip")
             .append("tspan")
               .attr("fill", "pink")
-              .text(d => { if(circleID == "c" + d.id){return "Distance(miles): " + d.distanceTo}})
+              .text(d => { if(this.id == "c" + d.id){return "Distance(miles): " + d.distanceTo}})
               .attr("dy", 20)
               .attr("x", 80)
-              .attr("id", "textLoc")
-          d3.selectAll("#textLoc")
+              .attr("id", d => "tc" + d.id)
+              .attr("class", "tooltip")
+          d3.selectAll(".tooltip")
             .transition()
               .duration(100)
               .attr("opacity", 1)
+
+          d3.selectAll("#t2" + this.id)
+            .transition()
+            .duration(50)
+            .attr("opacity", 1)
       }
 
       function handleMouseOut(){
-      //circleID = d3.selectAll(this).attr("id");
-        d3.selectAll("#textLoc")
+        console.log(this.id)
+        d3.selectAll("#t" + this.id)
+        .transition()
+          .duration(200)
+          .attr("opacity", 0.0)
+          .remove();
+
+        d3.selectAll("#t2" + this.id)
           .transition()
-            .duration(300)
-            .attr("opacity", 0.0)
-            .remove();
-        
+            .duration(100)
+            .attr("opacity", 0.3)
       }
       
           let xAxis = svg.append("g")
@@ -117,13 +131,15 @@ function init(elements) {
           
         text
           .append("text")
-          .attr("id","t2")
+          .attr("id", d => "t2c" + d.id)
+          .attr("class", "labels")
           .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
           .attr("font-size", "10px")
           .attr("fill", "white")
+          .attr("opacity", 0.3)
           .attr("x", d => { return xScale(d.distanceTo)})
-          .attr("y", d => { return yScale(d.numberOfCalls) + 20})
+          .attr("y", d => { return yScale(d.numberOfCalls) + 15})
           .text(d => {return d.location});
 /*      
         text 
@@ -171,7 +187,7 @@ zoom.on("zoom", function(e) {
   //let jsonLocations2 = elements.filter( e => {  return e.distanceTo  } );
 
 
-  d3.selectAll("#t2")
+  d3.selectAll(".labels")
   //.data(jsonLocations)
     //.enter()
       //.join()
