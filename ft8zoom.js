@@ -1,8 +1,8 @@
 function init(elements) {
 
 
-    let canvasW = 1600;
-    let canvasH = 800;
+    let canvasW = 1200;
+    let canvasH = 600;
   
     let margin = ({top: 50, right: 50, bottom: 50, left: 50})
 
@@ -35,14 +35,49 @@ function init(elements) {
       .data(jsonCircles)
       .enter() 
         .append("circle") 
+          .attr("id", d => "c" + d.id)
           .attr("fill", d3.color("rgba(253,165,15,1)")  )
           .attr("cx", d => { return xScale(d.distanceTo)})
           .attr("cy", d => { return yScale(d.numberOfCalls)})
           .attr("r", 5) 
           .attr("stroke", d3.color("rgba(0,0,0,0.5)") )
           .attr("stroke-width", 2)
+          .on("mouseover", handleMouseOver)
+          .on("mouseout", handleMouseOut);
 
 
+      function handleMouseOver() {
+        //console.log(d3.select(this).attr("id"));
+        circleID = d3.select(this).attr("id");
+        let newText = svg.selectAll()
+        .data(jsonLocations)
+        .enter()
+        .append("text")
+        .attr("id", "t")
+        .attr("text-anchor","left")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "20px")
+        .attr("fill", "orange")
+        .attr("x", 80)
+        .attr("y", 40)
+        .append("tspan")
+          .text(d => { if(circleID == "c" + d.id){return "Country: " + d.location}})
+        .append("tspan")
+          .text(d => { if(circleID == "c" + d.id){return "# of calls: " + d.numberOfCalls}})
+          .attr("dy", 20)
+          .attr("x", 80)
+        .append("tspan")
+          .text(d => { if(circleID == "c" + d.id){return "Distance(miles): " + d.distanceTo}})
+          .attr("dy", 20)
+          .attr("x", 80)
+      }
+
+      function handleMouseOut(){
+      //console.log(d3.selectAll('#t').attr("id"));
+        d3.selectAll("#t")
+        .remove();
+      }
+      
           let xAxis = svg.append("g")
           .style("stroke","white")
           .attr("transform","translate(0,750)")
@@ -95,7 +130,7 @@ function init(elements) {
 
 let zoom = d3.zoom()
 .scaleExtent([1, 40])
-.translateExtent([[0,0],[1600,800]]);
+.translateExtent([[0,0],[canvasW,canvasH]]);
 zoom.on("zoom", function(e) {
 
   let newXScale = e.transform.rescaleX(xScale)
@@ -156,11 +191,11 @@ svg.call(zoom);
 
 
 //Title, No idea how to do stacked text like this other than individual blocks. oh well. \n does not work.
-
+const titleX = .9
         const Title1 = svg.append("text")
-          .attr("x",  (canvasW * 9) / 10)
+          .attr("x",  canvasW * titleX)
           .attr("y", canvasH + (-canvasH + 50))
-          .attr("text-anchor","right")
+          .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
           .attr("font-size", "24px")
           .attr("fill", "lightBlue")
@@ -168,9 +203,9 @@ svg.call(zoom);
 
 
           const Title2 = svg.append("text")
-          .attr("x",  (canvasW * 9) / 10)
+          .attr("x",  canvasW * titleX)
           .attr("y", canvasH + (-canvasH + 110))
-          .attr("text-anchor","right")
+          .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
           .attr("font-size", "72px")
           .attr("fill", d3.color("rgba(253,165,15,1)") )
@@ -178,25 +213,25 @@ svg.call(zoom);
 
 
           const Title3 = svg.append("text")
-          .attr("x",  (canvasW * 9) / 10)
+          .attr("x",  canvasW * titleX)
           .attr("y", canvasH + (-canvasH + 136))
-          .attr("text-anchor","right")
+          .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
           .attr("font-size", "24px")
           .attr("fill", "lightBlue")
           .text("Digital Mode");
 
           const Title4 = svg.append("text")
-          .attr("x",  (canvasW * (9) / 10) - 25)
-          .attr("y", canvasH + (-canvasH + 160))
-          .attr("text-anchor","right")
+          .attr("x",  (canvasW * titleX))
+          .attr("y", canvasH  + (-canvasH + 155))
+          .attr("text-anchor","middle")
           .attr("font-family", "sans-serif")
           .attr("font-size", "12px")
           .attr("fill", "white")
           .text("by Kai Turner, Zach Lu, & Rick Li");
 
-    csv('FT8dataset.csv').then(data => {
+    /*csv('FT8dataset.csv').then(data => {
         console.log(data);
-    });
+    });*/
 }
 
