@@ -92,15 +92,16 @@ function init(elements) {
 
       function handleMouseOut(){
       //console.log(d3.selectAll('#t').attr("id"));
-      /*
-      d3.selectAll("#textLoc")
-      .transition()
-        .duration(300)
-        .attr("opacity", 0.1);
-        */
-      d3.selectAll("#t")
+      
+        d3.selectAll("#textLoc")
+        .transition()
+          .duration(1)
+          .attr("opacity", 0.0)
+          .remove();
+          
+        //d3.selectAll("#t")
         //.delay(300)
-        .remove();
+        //.remove();
         
       }
       
