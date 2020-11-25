@@ -53,7 +53,7 @@ function init(elements) {
 
 
       function handleMouseOver() {
-        //console.log(d3.select(this).attr("id"));
+        console.log(d3.select(this).attr("id"));
         circleID = d3.select(this).attr("id");
         let newText = svg.selectAll()
         .data(jsonLocations)
@@ -66,8 +66,8 @@ function init(elements) {
             .attr("x", 80)
             .attr("y", 40)
             .append("tspan")
-              .attr("fill", d3.color("rgba(253,165,15, 1)") )
               .text(d => { if(circleID == "c" + d.id){return "Country: " + d.location}})
+              .attr("fill", d3.color("rgba(253,165,15, 1)") )
               .attr("id", "textLoc")
               .attr("opacity", 0.1)
             .append("tspan")
@@ -84,24 +84,17 @@ function init(elements) {
               .attr("id", "textLoc")
           d3.selectAll("#textLoc")
             .transition()
-              .duration(300)
+              .duration(100)
               .attr("opacity", 1)
-
-              console.log(newText)
       }
 
       function handleMouseOut(){
-      //console.log(d3.selectAll('#t').attr("id"));
-      
+      //circleID = d3.selectAll(this).attr("id");
         d3.selectAll("#textLoc")
-        .transition()
-          .duration(1)
-          .attr("opacity", 0.0)
-          .remove();
-          
-        //d3.selectAll("#t")
-        //.delay(300)
-        //.remove();
+          .transition()
+            .duration(300)
+            .attr("opacity", 0.0)
+            .remove();
         
       }
       
@@ -200,7 +193,7 @@ svg.call(zoom);
           .attr("font-family", "sans-serif")
           .attr("font-size", "14px")
           .attr("fill", "white")
-          .text("Distance from LA (in kilometers)");
+          .text("Distance from LA (in miles)");
       
         const yText = svg.append("text")
           .attr("text-anchor","middle")
